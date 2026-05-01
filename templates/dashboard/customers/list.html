@@ -1,0 +1,55 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block title %}Customers{% endblock %}
+{% block page_title %}Customer Management{% endblock %}
+{% block active_customers %}active{% endblock %}
+
+{% block content %}
+<div class="dashboard-card mb-4">
+  <form method="get" class="row g-3 align-items-end">
+    <div class="col-md-6">
+      <input type="text" name="search" class="form-control" placeholder="Search by name, email, or phone..." value="{{ search }}">
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>Search</button>
+    </div>
+  </form>
+</div>
+
+<div class="dashboard-card">
+  <div class="table-responsive">
+    <table class="table table-hover dashboard-table">
+      <thead>
+        <tr><th>Customer</th><th>Phone</th><th>Orders</th><th>Total Spent</th><th>Joined</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for customer in customers %}
+        <tr>
+          <td>
+            <div class="fw-medium">{{ customer.get_full_name|default:customer.email }}</div>
+            <small class="text-muted">{{ customer.email }}</small>
+          </td>
+          <td>{{ customer.phone|default:'-' }}</td>
+          <td><span class="badge bg-primary">{{ customer.total_orders }}</span></td>
+          <td class="fw-bold">Rs.{{ customer.total_spent|intcomma }}</td>
+          <td class="small text-muted">{{ customer.date_joined|date:"M d, Y" }}</td>
+          <td><a href="{% url 'dashboard:customer_detail' customer.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center py-4 text-muted">No customers found</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if customers.has_other_pages %}
+  <div class="d-flex justify-content-center mt-3">
+    <ul class="pagination pagination-sm">
+      {% if customers.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ customers.previous_page_number }}&search={{ search }}">‹</a></li>{% endif %}
+      <li class="page-item active"><a class="page-link">{{ customers.number }}/{{ customers.paginator.num_pages }}</a></li>
+      {% if customers.has_next %}<li class="page-item"><a class="page-link" href="?page={{ customers.next_page_number }}&search={{ search }}">›</a></li>{% endif %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

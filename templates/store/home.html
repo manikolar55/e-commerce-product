@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ site_settings.site_name }} - Premium Baby & Ladies Products | COD Pakistan{% endblock %}
+{% block meta_description %}Shop premium baby products and ladies fashion online. Free delivery on orders above Rs.2000. Cash on Delivery available across Pakistan.{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner Slider -->
+{% if banners %}
+<section class="hero-slider">
+  <div class="swiper hero-swiper">
+    <div class="swiper-wrapper">
+      {% for banner in banners %}
+      <div class="swiper-slide">
+        <div class="hero-slide" style="background-image: url('{{ banner.image.url }}');">
+          <div class="hero-overlay"></div>
+          <div class="container h-100">
+            <div class="row h-100 align-items-center">
+              <div class="col-lg-6">
+                <div class="hero-content" data-aos="fade-right">
+                  <h1 class="hero-title">{{ banner.title }}</h1>
+                  {% if banner.subtitle %}<p class="hero-subtitle">{{ banner.subtitle }}</p>{% endif %}
+                  {% if banner.link %}
+                  <a href="{{ banner.link }}" class="btn btn-primary btn-lg hero-btn">
+                    {{ banner.button_text|default:'Shop Now' }} <i class="bi bi-arrow-right ms-2"></i>
+                  </a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="swiper-pagination"></div>
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Category Cards -->
+<section class="category-section py-5 bg-light">
+  <div class="container">
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-5">
+        <a href="{% if baby_category %}{{ baby_category.get_absolute_url }}{% else %}#{% endif %}" class="category-card baby-card text-decoration-none">
+          <div class="category-card-inner">
+            <div class="category-icon"><i class="bi bi-balloon-heart-fill"></i></div>
+            <h3>Baby Products</h3>
+            <p>Clothes, Toys, Care & More</p>
+            <span class="shop-link">Shop Now <i class="bi bi-arrow-right"></i></span>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-5">
+        <a href="{% if ladies_category %}{{ ladies_category.get_absolute_url }}{% else %}#{% endif %}" class="category-card ladies-card text-decoration-none">
+          <div class="category-card-inner">
+            <div class="category-icon"><i class="bi bi-bag-heart-fill"></i></div>
+            <h3>Ladies Products</h3>
+            <p>Dresses, Bags, Makeup & More</p>
+            <span class="shop-link">Shop Now <i class="bi bi-arrow-right"></i></span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Baby Products -->
+{% if featured_baby %}
+<section class="products-section py-5">
+  <div class="container">
+    <div class="section-header text-center mb-4">
+      <span class="section-tag">For Little Ones</span>
+      <h2 class="section-title">Featured Baby Products</h2>
+      <p class="section-sub">Handpicked products for your little bundle of joy</p>
+    </div>
+    <div class="row g-3">
+      {% for product in featured_baby %}
+      {% include 'store/includes/product_card.html' %}
+      {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+      <a href="{% if baby_category %}{{ baby_category.get_absolute_url }}{% else %}{% url 'store:product_list' %}{% endif %}" class="btn btn-outline-primary btn-lg">
+        View All Baby Products <i class="bi bi-arrow-right ms-2"></i>
+      </a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Promo Banner -->
+<section class="promo-banner py-5">
+  <div class="container">
+    <div class="promo-card">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h3 class="promo-title">Free Delivery on Orders Above Rs.{{ site_settings.free_shipping_threshold|intcomma }}</h3>
+          <p class="promo-text mb-0">Cash on Delivery available across Pakistan. Shop now and save!</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+          <a href="{% url 'store:product_list' %}" class="btn btn-light btn-lg">
+            Shop Now <i class="bi bi-arrow-right ms-2"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Ladies Products -->
+{% if featured_ladies %}
+<section class="products-section py-5 bg-light">
+  <div class="container">
+    <div class="section-header text-center mb-4">
+      <span class="section-tag">For Women</span>
+      <h2 class="section-title">Featured Ladies Products</h2>
+      <p class="section-sub">Trendy fashion for the modern woman</p>
+    </div>
+    <div class="row g-3">
+      {% for product in featured_ladies %}
+      {% include 'store/includes/product_card.html' %}
+      {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+      <a href="{% if ladies_category %}{{ ladies_category.get_absolute_url }}{% else %}{% url 'store:product_list' %}{% endif %}" class="btn btn-outline-primary btn-lg">
+        View All Ladies Products <i class="bi bi-arrow-right ms-2"></i>
+      </a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- New Arrivals -->
+{% if new_arrivals %}
+<section class="products-section py-5">
+  <div class="container">
+    <div class="section-header text-center mb-4">
+      <span class="section-tag">Just In</span>
+      <h2 class="section-title">New Arrivals</h2>
+    </div>
+    <div class="swiper products-swiper">
+      <div class="swiper-wrapper">
+        {% for product in new_arrivals %}
+        <div class="swiper-slide">
+          {% include 'store/includes/product_card.html' %}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="swiper-button-prev product-prev"></div>
+      <div class="swiper-button-next product-next"></div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Best Sellers -->
+{% if best_sellers %}
+<section class="products-section py-5 bg-light">
+  <div class="container">
+    <div class="section-header text-center mb-4">
+      <span class="section-tag">Top Picks</span>
+      <h2 class="section-title">Best Sellers</h2>
+    </div>
+    <div class="swiper products-swiper">
+      <div class="swiper-wrapper">
+        {% for product in best_sellers %}
+        <div class="swiper-slide">
+          {% include 'store/includes/product_card.html' %}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="swiper-button-prev product-prev"></div>
+      <div class="swiper-button-next product-next"></div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Why Choose Us -->
+<section class="features-section py-5">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <h2 class="section-title">Why Shop With Us</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-3 col-6 text-center">
+        <div class="feature-box">
+          <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
+          <h6>100% Authentic</h6>
+          <p class="small text-muted">All products are genuine and quality checked</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 text-center">
+        <div class="feature-box">
+          <div class="feature-icon"><i class="bi bi-truck"></i></div>
+          <h6>Fast Delivery</h6>
+          <p class="small text-muted">Delivered to your doorstep within 3-5 days</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 text-center">
+        <div class="feature-box">
+          <div class="feature-icon"><i class="bi bi-cash-coin"></i></div>
+          <h6>Cash on Delivery</h6>
+          <p class="small text-muted">Pay when you receive your order</p>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 text-center">
+        <div class="feature-box">
+          <div class="feature-icon"><i class="bi bi-arrow-repeat"></i></div>
+          <h6>Easy Returns</h6>
+          <p class="small text-muted">Hassle-free 7-day return policy</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials-section py-5 bg-light">
+  <div class="container">
+    <div class="section-header text-center mb-4">
+      <span class="section-tag">Customer Reviews</span>
+      <h2 class="section-title">What Our Customers Say</h2>
+    </div>
+    <div class="swiper testimonials-swiper">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+          <div class="testimonial-card">
+            <div class="stars mb-2">★★★★★</div>
+            <p>"Amazing quality! The baby clothes are so soft and well-made. My baby girl loves them. Will definitely order again!"</p>
+            <div class="reviewer"><strong>Fatima K.</strong> - Lahore</div>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="testimonial-card">
+            <div class="stars mb-2">★★★★★</div>
+            <p>"Received my order within 3 days. The dress quality is excellent and exactly as shown. Great COD service!"</p>
+            <div class="reviewer"><strong>Sana M.</strong> - Karachi</div>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="testimonial-card">
+            <div class="stars mb-2">★★★★☆</div>
+            <p>"Best online store for baby products in Pakistan. Affordable prices and top quality. Highly recommended!"</p>
+            <div class="reviewer"><strong>Ayesha R.</strong> - Islamabad</div>
+          </div>
+        </div>
+        <div class="swiper-slide">
+          <div class="testimonial-card">
+            <div class="stars mb-2">★★★★★</div>
+            <p>"The makeup products are original and long-lasting. Fast delivery and great packaging. Love this store!"</p>
+            <div class="reviewer"><strong>Zainab A.</strong> - Faisalabad</div>
+          </div>
+        </div>
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Hero Slider
+new Swiper('.hero-swiper', {
+  loop: true,
+  autoplay: { delay: 5000, disableOnInteraction: false },
+  pagination: { el: '.hero-swiper .swiper-pagination', clickable: true },
+  navigation: {
+    nextEl: '.hero-swiper .swiper-button-next',
+    prevEl: '.hero-swiper .swiper-button-prev',
+  },
+});
+
+// Product Sliders
+document.querySelectorAll('.products-swiper').forEach(function(el) {
+  new Swiper(el, {
+    slidesPerView: 2,
+    spaceBetween: 16,
+    navigation: {
+      nextEl: el.parentElement.querySelector('.product-next'),
+      prevEl: el.parentElement.querySelector('.product-prev'),
+    },
+    breakpoints: {
+      576: { slidesPerView: 2 },
+      768: { slidesPerView: 3 },
+      992: { slidesPerView: 4 },
+    }
+  });
+});
+
+// Testimonials
+new Swiper('.testimonials-swiper', {
+  loop: true,
+  autoplay: { delay: 4000 },
+  pagination: { el: '.testimonials-swiper .swiper-pagination', clickable: true },
+  slidesPerView: 1,
+  spaceBetween: 20,
+  breakpoints: {
+    768: { slidesPerView: 2 },
+    992: { slidesPerView: 3 },
+  }
+});
+</script>
+{% endblock %}

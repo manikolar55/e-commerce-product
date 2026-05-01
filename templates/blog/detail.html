@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.meta_title|default:post.title }} | {{ site_settings.site_name }}{% endblock %}
+{% block meta_description %}{{ post.meta_description|default:post.excerpt }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <article>
+        {% if post.image %}
+        <img src="{{ post.image.url }}" alt="{{ post.title }}" class="w-100 rounded-3 mb-4">
+        {% endif %}
+        <h1>{{ post.title }}</h1>
+        <p class="text-muted small mb-4">{{ post.created_at|date:"M d, Y" }} | {{ post.views }} views</p>
+        <div class="blog-content">{{ post.body|linebreaks }}</div>
+      </article>
+    </div>
+    <div class="col-lg-4">
+      {% if related %}
+      <div class="sidebar-card">
+        <h6>Related Posts</h6>
+        {% for p in related %}
+        <div class="mb-3">
+          <a href="{{ p.get_absolute_url }}" class="text-dark text-decoration-none">
+            <strong>{{ p.title }}</strong>
+          </a>
+          <p class="text-muted small mb-0">{{ p.excerpt|truncatechars:80 }}</p>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

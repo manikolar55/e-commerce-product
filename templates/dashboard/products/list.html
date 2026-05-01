@@ -1,0 +1,127 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block title %}Products{% endblock %}
+{% block page_title %}Product Management{% endblock %}
+{% block active_products %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h5 class="mb-0">Products ({{ products.paginator.count }})</h5>
+  <a href="{% url 'dashboard:product_add' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Add Product
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="dashboard-card mb-4">
+  <form method="get" class="row g-3 align-items-end">
+    <div class="col-md-5">
+      <input type="text" name="search" class="form-control form-control-sm" placeholder="Search by name or SKU..." value="{{ search }}">
+    </div>
+    <div class="col-md-4">
+      <select name="category" class="form-select form-select-sm">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+        <option value="{{ cat.id }}" {% if cat_filter == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <button type="submit" class="btn btn-primary btn-sm me-2"><i class="bi bi-search me-1"></i>Search</button>
+      <a href="{% url 'dashboard:product_list' %}" class="btn btn-outline-secondary btn-sm">Clear</a>
+    </div>
+  </form>
+</div>
+
+<div class="dashboard-card">
+  <div class="table-responsive">
+    <table class="table table-hover dashboard-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Category</th>
+          <th>Price</th>
+          <th>Stock</th>
+          <th>Status</th>
+          <th>Sold</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-3">
+              {% if product.main_image %}
+              <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}" class="top-product-img rounded-2">
+              {% else %}
+              <div class="top-product-img-placeholder rounded-2 bg-light d-flex align-items-center justify-content-center">
+                <i class="bi bi-image text-muted small"></i>
+              </div>
+              {% endif %}
+              <div>
+                <div class="fw-medium">{{ product.name|truncatechars:40 }}</div>
+                <small class="text-muted">{{ product.sku }}</small>
+              </div>
+            </div>
+          </td>
+          <td>{{ product.category.name }}</td>
+          <td>
+            {% if product.discount_price %}
+            <span class="fw-bold text-success">Rs.{{ product.discount_price|intcomma }}</span><br>
+            <small class="text-muted text-decoration-line-through">Rs.{{ product.price|intcomma }}</small>
+            {% else %}
+            <span class="fw-bold">Rs.{{ product.price|intcomma }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if product.stock == 0 %}
+            <span class="badge bg-danger">Out of Stock</span>
+            {% elif product.stock < 10 %}
+            <span class="badge bg-warning">{{ product.stock }} (Low)</span>
+            {% else %}
+            <span class="badge bg-success">{{ product.stock }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if product.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}
+            {% if product.is_featured %}<span class="badge bg-primary">Featured</span>{% endif %}
+          </td>
+          <td>{{ product.total_sold }}</td>
+          <td>
+            <div class="btn-group btn-group-sm">
+              <a href="{% url 'dashboard:product_edit' product.pk %}" class="btn btn-outline-primary" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{{ product.get_absolute_url }}" class="btn btn-outline-secondary" target="_blank" title="View">
+                <i class="bi bi-eye"></i>
+              </a>
+              <form action="{% url 'dashboard:product_delete' product.pk %}" method="post" class="d-inline"
+                    onsubmit="return confirm('Deactivate this product?')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger" title="Deactivate">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center py-4 text-muted">No products found</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if products.has_other_pages %}
+  <div class="d-flex justify-content-center mt-3">
+    <ul class="pagination pagination-sm">
+      {% if products.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}&search={{ search }}&category={{ cat_filter }}">‹</a></li>{% endif %}
+      <li class="page-item active"><a class="page-link">{{ products.number }}/{{ products.paginator.num_pages }}</a></li>
+      {% if products.has_next %}<li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}&search={{ search }}&category={{ cat_filter }}">›</a></li>{% endif %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

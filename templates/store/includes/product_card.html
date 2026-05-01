@@ -1,0 +1,61 @@
+{% load humanize %}
+<div class="col-6 col-md-4 col-lg-3">
+  <div class="product-card">
+    <!-- Badges -->
+    <div class="product-badges">
+      {% if product.discount_percentage > 0 %}
+      <span class="badge-discount">-{{ product.discount_percentage }}%</span>
+      {% endif %}
+      {% if product.is_new_arrival %}
+      <span class="badge-new">New</span>
+      {% endif %}
+    </div>
+
+    <!-- Wishlist -->
+    <button class="wishlist-btn wishlist-toggle-btn" data-product-id="{{ product.id }}" title="Wishlist">
+      <i class="bi bi-heart"></i>
+    </button>
+
+    <!-- Image — full link to product page -->
+    <a href="{{ product.get_absolute_url }}" class="product-img-link">
+      {% if product.main_image %}
+      <img src="{{ product.main_image.image.url }}"
+           alt="{{ product.main_image.alt_text|default:product.name }}"
+           class="product-img" loading="lazy">
+      {% else %}
+      <div class="product-img-placeholder d-flex align-items-center justify-content-center">
+        <i class="bi bi-image text-muted fs-1"></i>
+      </div>
+      {% endif %}
+    </a>
+
+    <div class="product-info p-2 p-md-3">
+      <span class="product-category">{{ product.category.name }}</span>
+
+      <h6 class="product-name mt-1">
+        <a href="{{ product.get_absolute_url }}" class="text-decoration-none text-dark">
+          {{ product.name|truncatechars:45 }}
+        </a>
+      </h6>
+
+      <!-- Price -->
+      <div class="product-price">
+        {% if product.discount_price %}
+        <span class="price-current">Rs.{{ product.discount_price|intcomma }}</span>
+        <span class="price-original">Rs.{{ product.price|intcomma }}</span>
+        {% else %}
+        <span class="price-current">Rs.{{ product.price|intcomma }}</span>
+        {% endif %}
+      </div>
+
+      <!-- Add to Cart -->
+      {% if product.in_stock %}
+      <button class="btn-add-cart w-100 mt-2 add-to-cart-btn" data-product-id="{{ product.id }}">
+        <i class="bi bi-bag-plus me-1"></i>Add to Cart
+      </button>
+      {% else %}
+      <button class="btn-add-cart w-100 mt-2" disabled>Out of Stock</button>
+      {% endif %}
+    </div>
+  </div>
+</div>

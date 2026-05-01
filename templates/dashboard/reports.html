@@ -1,0 +1,121 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block title %}Reports{% endblock %}
+{% block page_title %}Reports & Analytics{% endblock %}
+{% block active_reports %}active{% endblock %}
+
+{% block content %}
+<!-- Report Type Selector -->
+<div class="dashboard-card mb-4">
+  <form method="get" class="row g-3 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label">Report Type</label>
+      <select name="type" class="form-select" onchange="this.form.submit()">
+        <option value="daily" {% if report_type == 'daily' %}selected{% endif %}>Daily (Last 7 Days)</option>
+        <option value="monthly" {% if report_type == 'monthly' %}selected{% endif %}>Monthly (Last 6 Months)</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Total Revenue (All Time)</label>
+      <div class="fw-bold fs-4 text-success">Rs.{{ total_revenue|floatformat:0|intcomma }}</div>
+    </div>
+  </form>
+</div>
+
+<!-- Revenue Chart -->
+<div class="dashboard-card mb-4">
+  <h5 class="mb-3">Revenue Report</h5>
+  <canvas id="reportChart" height="60"></canvas>
+</div>
+
+<!-- Stats Table -->
+<div class="dashboard-card mb-4">
+  <h5 class="mb-3">Detailed Stats</h5>
+  <div class="table-responsive">
+    <table class="table dashboard-table">
+      <thead>
+        <tr><th>Period</th><th>Total Orders</th><th>Revenue (Rs.)</th><th>Delivered</th><th>Pending</th></tr>
+      </thead>
+      <tbody>
+        {% for row in data %}
+        <tr>
+          <td>{{ row.date }}</td>
+          <td>{{ row.total_orders }}</td>
+          <td class="fw-bold">Rs.{{ row.revenue|floatformat:0|intcomma }}</td>
+          <td><span class="badge bg-success">{{ row.delivered }}</span></td>
+          <td><span class="badge bg-warning">{{ row.pending }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Best Selling Products -->
+<div class="dashboard-card">
+  <h5 class="mb-3">Best Selling Products (All Time)</h5>
+  <div class="table-responsive">
+    <table class="table dashboard-table">
+      <thead>
+        <tr><th>Product</th><th>Category</th><th>Price</th><th>Total Sold</th><th>Revenue Est.</th></tr>
+      </thead>
+      <tbody>
+        {% for product in best_products %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              {% if product.main_image %}
+              <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}" class="top-product-img rounded">
+              {% endif %}
+              <a href="{{ product.get_absolute_url }}" target="_blank">{{ product.name|truncatechars:40 }}</a>
+            </div>
+          </td>
+          <td>{{ product.category.name }}</td>
+          <td>Rs.{{ product.selling_price|intcomma }}</td>
+          <td><span class="badge bg-primary">{{ product.total_sold }}</span></td>
+          <td class="fw-bold">Rs.{{ product.selling_price|floatformat:2|intcomma }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const data = {{ data|safe }};
+new Chart(document.getElementById('reportChart'), {
+  type: 'bar',
+  data: {
+    labels: data.map(d => d.date),
+    datasets: [
+      {
+        label: 'Revenue (Rs.)',
+        data: data.map(d => d.revenue),
+        backgroundColor: 'rgba(99, 102, 241, 0.8)',
+        yAxisID: 'y',
+      },
+      {
+        label: 'Orders',
+        data: data.map(d => d.total_orders),
+        type: 'line',
+        borderColor: '#f59e0b',
+        backgroundColor: 'transparent',
+        yAxisID: 'y1',
+        tension: 0.4,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    interaction: { mode: 'index', intersect: false },
+    scales: {
+      y: { beginAtZero: true, ticks: { callback: v => 'Rs.' + v.toLocaleString() } },
+      y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false } }
+    }
+  }
+});
+</script>
+{% endblock %}

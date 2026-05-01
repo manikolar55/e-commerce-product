@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Checkout | {{ site_settings.site_name }}{% endblock %}
+{% block meta_description %}Complete your order with Cash on Delivery across Pakistan.{% endblock %}
+
+{% block content %}
+<div class="container-fluid container-md my-3 my-md-5 px-2 px-md-3">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center gap-2 mb-4">
+    <a href="{% url 'orders:cart' %}" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h4 class="mb-0 fw-bold">Complete Your Order</h4>
+  </div>
+
+  <form method="post" id="checkoutForm" novalidate>
+    {% csrf_token %}
+    <div class="row g-4">
+
+      <!-- LEFT: Delivery Form -->
+      <div class="col-12 col-lg-7">
+
+        <!-- COD Banner -->
+        <div class="cod-banner mb-4">
+          <i class="bi bi-cash-coin fs-4 text-success"></i>
+          <div>
+            <div class="fw-bold">Cash on Delivery</div>
+            <div class="small text-muted">Pay when your order arrives at your door</div>
+          </div>
+        </div>
+
+        <!-- Delivery Details Card -->
+        <div class="checkout-section">
+          <h6 class="checkout-section-title">
+            <span class="step-num">1</span> Your Details
+          </h6>
+          <div class="row g-3">
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+              {{ form.full_name }}
+              {% if form.full_name.errors %}<div class="field-error">{{ form.full_name.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="col-12 col-sm-6">
+              <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
+              {{ form.phone }}
+              {% if form.phone.errors %}<div class="field-error">{{ form.phone.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="col-12 col-sm-6">
+              <label class="form-label fw-semibold">Alternative Number</label>
+              {{ form.alt_phone }}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Email Address
+                <span class="text-muted fw-normal small">(for order confirmation)</span>
+              </label>
+              {{ form.email }}
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Delivery Address -->
+        <div class="checkout-section mt-3">
+          <h6 class="checkout-section-title">
+            <span class="step-num">2</span> Delivery Address
+          </h6>
+          <div class="row g-3">
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Street Address <span class="text-danger">*</span></label>
+              {{ form.address }}
+              {% if form.address.errors %}<div class="field-error">{{ form.address.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="col-12 col-sm-6">
+              <label class="form-label fw-semibold">City <span class="text-danger">*</span></label>
+              {{ form.city }}
+              {% if form.city.errors %}<div class="field-error">{{ form.city.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="col-12 col-sm-6">
+              <label class="form-label fw-semibold">Province <span class="text-danger">*</span></label>
+              {{ form.province }}
+              {% if form.province.errors %}<div class="field-error">{{ form.province.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="col-12 col-sm-6">
+              <label class="form-label fw-semibold">Postal Code</label>
+              {{ form.postal_code }}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">Order Notes <span class="text-muted fw-normal small">(optional)</span></label>
+              {{ form.notes }}
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Payment (COD only) -->
+        <div class="checkout-section mt-3">
+          <h6 class="checkout-section-title">
+            <span class="step-num">3</span> Payment Method
+          </h6>
+          <div class="payment-cod-card">
+            <div class="d-flex align-items-center gap-3">
+              <div class="cod-radio-circle active"><i class="bi bi-check-lg"></i></div>
+              <div>
+                <div class="fw-bold">Cash on Delivery (COD)</div>
+                <div class="small text-muted">Pay with cash when your order is delivered</div>
+              </div>
+              <div class="ms-auto">
+                <i class="bi bi-cash-stack fs-3 text-success"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Order Summary -->
+      <div class="col-12 col-lg-5">
+        <div class="checkout-summary-box">
+          <h6 class="fw-bold mb-3">Your Order ({{ cart.items.all|length }} items)</h6>
+
+          <!-- Items list -->
+          <div class="checkout-items">
+            {% for item in cart.items.all %}
+            <div class="checkout-item-row">
+              <div class="d-flex gap-3 align-items-start">
+                {% if item.product.main_image %}
+                <img src="{{ item.product.main_image.image.url }}"
+                     alt="{{ item.product.name }}"
+                     class="checkout-item-thumb rounded-2">
+                {% endif %}
+                <div class="flex-grow-1 min-w-0">
+                  <div class="small fw-semibold text-dark lh-sm">{{ item.product.name|truncatechars:45 }}</div>
+                  <div class="x-small text-muted mt-1">
+                    {% if item.size %}{{ item.size.name }}{% endif %}
+                    {% if item.size and item.color %} • {% endif %}
+                    {% if item.color %}{{ item.color.name }}{% endif %}
+                    • Qty: {{ item.quantity }}
+                  </div>
+                </div>
+                <div class="small fw-bold text-primary flex-shrink-0">Rs.{{ item.total_price|intcomma }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Totals -->
+          <div class="checkout-totals mt-3">
+            <div class="checkout-total-row">
+              <span>Subtotal</span>
+              <span>Rs.{{ cart.subtotal|intcomma }}</span>
+            </div>
+            {% if discount > 0 %}
+            <div class="checkout-total-row text-success">
+              <span>Discount</span>
+              <span>− Rs.{{ discount|floatformat:0|intcomma }}</span>
+            </div>
+            {% endif %}
+            <div class="checkout-total-row">
+              <span>Delivery</span>
+              <span>{% if cart.shipping_cost == 0 %}<span class="text-success fw-semibold">FREE</span>{% else %}Rs.{{ cart.shipping_cost|intcomma }}{% endif %}</span>
+            </div>
+            <div class="checkout-total-final">
+              <span>Total Amount</span>
+              <span>Rs.{{ total|floatformat:0|intcomma }}</span>
+            </div>
+          </div>
+
+          <!-- Place Order Button -->
+          <button type="submit" class="btn-place-order" id="placeOrderBtn">
+            <i class="bi bi-bag-check-fill me-2"></i>Place Order (COD)
+          </button>
+
+          <div class="text-center mt-3">
+            <div class="small text-muted">
+              <i class="bi bi-shield-lock-fill text-success me-1"></i>
+              Secure order — No payment needed now
+            </div>
+          </div>
+
+          <!-- WhatsApp Option -->
+          {% if site_settings.whatsapp %}
+          <div class="whatsapp-order-option mt-3">
+            <div class="small text-muted text-center mb-2">Prefer to order on WhatsApp?</div>
+            <a href="https://wa.me/{{ site_settings.whatsapp }}?text=Hi! I want to place an order. Please help me."
+               class="btn-whatsapp-order" target="_blank">
+              <i class="bi bi-whatsapp me-2"></i>Order via WhatsApp
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+  const btn = document.getElementById('placeOrderBtn');
+  // Basic validation
+  const required = this.querySelectorAll('[required]');
+  let valid = true;
+  required.forEach(field => {
+    field.classList.remove('is-invalid');
+    if (!field.value.trim()) {
+      field.classList.add('is-invalid');
+      valid = false;
+    }
+  });
+  if (!valid) {
+    e.preventDefault();
+    // Scroll to first error
+    const firstError = this.querySelector('.is-invalid');
+    if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Placing your order...';
+});
+</script>
+{% endblock %}

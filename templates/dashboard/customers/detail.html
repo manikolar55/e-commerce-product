@@ -1,0 +1,47 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block title %}Customer: {{ customer.email }}{% endblock %}
+{% block page_title %}Customer Detail{% endblock %}
+{% block active_customers %}active{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="dashboard-card">
+      <div class="text-center mb-3">
+        <div class="customer-avatar-lg mx-auto">{{ customer.first_name|first|upper }}{{ customer.last_name|first|upper }}</div>
+        <h5 class="mt-2">{{ customer.get_full_name|default:customer.email }}</h5>
+        <small class="text-muted">{{ customer.email }}</small>
+      </div>
+      <hr>
+      <div class="info-row"><label>Phone</label><span>{{ customer.phone|default:'N/A' }}</span></div>
+      <div class="info-row"><label>Joined</label><span>{{ customer.date_joined|date:"M d, Y" }}</span></div>
+      <div class="info-row"><label>Total Orders</label><strong class="text-primary">{{ customer.total_orders }}</strong></div>
+      <div class="info-row"><label>Total Spent</label><strong class="text-success">Rs.{{ customer.total_spent|intcomma }}</strong></div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="dashboard-card">
+      <h6>Order History</h6>
+      <div class="table-responsive">
+        <table class="table dashboard-table">
+          <thead><tr><th>Order ID</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody>
+            {% for order in orders %}
+            <tr>
+              <td><a href="{% url 'dashboard:order_detail' order.order_id %}"><code>{{ order.order_id }}</code></a></td>
+              <td>Rs.{{ order.total|intcomma }}</td>
+              <td><span class="badge bg-{{ order.status_badge }}">{{ order.get_status_display }}</span></td>
+              <td class="small text-muted">{{ order.created_at|date:"M d, Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center text-muted">No orders yet</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

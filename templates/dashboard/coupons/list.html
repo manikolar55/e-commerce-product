@@ -1,0 +1,35 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block title %}Coupons{% endblock %}
+{% block page_title %}Coupons{% endblock %}
+{% block active_coupons %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+  <h5>Coupons ({{ coupons.count }})</h5>
+  <a href="{% url 'dashboard:coupon_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Add Coupon</a>
+</div>
+<div class="dashboard-card">
+  <div class="table-responsive">
+    <table class="table dashboard-table">
+      <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Used</th><th>Limit</th><th>Valid Until</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for coupon in coupons %}
+        <tr>
+          <td><code class="fs-6">{{ coupon.code }}</code></td>
+          <td>{{ coupon.get_discount_type_display }}</td>
+          <td>{% if coupon.discount_type == 'percentage' %}{{ coupon.discount_value }}%{% else %}Rs.{{ coupon.discount_value|intcomma }}{% endif %}</td>
+          <td>{{ coupon.used_count }}</td>
+          <td>{% if coupon.usage_limit == 0 %}Unlimited{% else %}{{ coupon.usage_limit }}{% endif %}</td>
+          <td class="small">{{ coupon.valid_until|date:"M d, Y" }}</td>
+          <td>{% if coupon.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center py-4 text-muted">No coupons created yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

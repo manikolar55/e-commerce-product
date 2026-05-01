@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}500 - Server Error | {{ site_settings.site_name }}{% endblock %}
+{% block content %}
+<div class="container my-5 text-center py-5">
+  <h1 class="display-1 text-danger fw-bold">500</h1>
+  <h3>Something Went Wrong</h3>
+  <p class="text-muted">We're working to fix this. Please try again shortly.</p>
+  <a href="{% url 'store:home' %}" class="btn btn-primary btn-lg mt-3">Go Home</a>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Site Settings{% endblock %}
+{% block page_title %}Site Settings{% endblock %}
+{% block active_settings %}active{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="dashboard-card">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-4">
+          <h6 class="section-divider">General</h6>
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Site Name</label>{{ form.site_name }}</div>
+            <div class="col-md-6"><label class="form-label">Announcement Bar</label>{{ form.announcement_bar }}</div>
+            <div class="col-md-6"><label class="form-label">Logo</label>{{ form.logo }}</div>
+            <div class="col-md-6"><label class="form-label">Favicon</label>{{ form.favicon }}</div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <h6 class="section-divider">Contact</h6>
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Phone</label>{{ form.phone }}</div>
+            <div class="col-md-6"><label class="form-label">Email</label>{{ form.email }}</div>
+            <div class="col-md-6"><label class="form-label">WhatsApp Number</label>{{ form.whatsapp }}</div>
+            <div class="col-12"><label class="form-label">Address</label>{{ form.address }}</div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <h6 class="section-divider">Social Media</h6>
+          <div class="row g-3">
+            <div class="col-md-4"><label class="form-label">Facebook URL</label>{{ form.facebook }}</div>
+            <div class="col-md-4"><label class="form-label">Instagram URL</label>{{ form.instagram }}</div>
+            <div class="col-md-4"><label class="form-label">Twitter URL</label>{{ form.twitter }}</div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <h6 class="section-divider">Shipping</h6>
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Free Shipping Threshold (Rs.)</label>{{ form.free_shipping_threshold }}</div>
+            <div class="col-md-6"><label class="form-label">Shipping Cost (Rs.)</label>{{ form.shipping_cost }}</div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <h6 class="section-divider">SEO</h6>
+          <div class="row g-3">
+            <div class="col-12"><label class="form-label">Meta Title</label>{{ form.meta_title }}</div>
+            <div class="col-12"><label class="form-label">Meta Description</label>{{ form.meta_description }}</div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-check-lg me-2"></i>Save Settings</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

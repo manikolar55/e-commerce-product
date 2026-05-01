@@ -1,0 +1,35 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}Categories{% endblock %}
+{% block page_title %}Categories{% endblock %}
+{% block active_categories %}active{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+  <h5>Categories</h5>
+  <a href="{% url 'dashboard:category_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Add Category</a>
+</div>
+<div class="dashboard-card">
+  <div class="table-responsive">
+    <table class="table dashboard-table">
+      <thead><tr><th>Name</th><th>Type</th><th>Products</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for cat in categories %}
+        <tr>
+          <td>
+            <div class="fw-medium">{{ cat.name }}</div>
+            {% for sub in cat.subcategories.all %}
+            <small class="badge bg-light text-dark me-1">{{ sub.name }}</small>
+            {% endfor %}
+          </td>
+          <td><span class="badge {% if cat.category_type == 'baby' %}bg-info{% else %}bg-pink{% endif %}">{{ cat.get_category_type_display }}</span></td>
+          <td>{{ cat.product_count }}</td>
+          <td>{% if cat.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+          <td><a href="{% url 'dashboard:category_edit' cat.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

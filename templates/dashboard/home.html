@@ -1,0 +1,208 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block title %}Dashboard Overview{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
+{% block active_home %}active{% endblock %}
+
+{% block content %}
+<!-- Stats Cards Row 1 -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon bg-primary-soft"><i class="bi bi-receipt text-primary"></i></div>
+      <div class="stat-info">
+        <h3>{{ total_orders }}</h3>
+        <span>Total Orders</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon bg-warning-soft"><i class="bi bi-clock text-warning"></i></div>
+      <div class="stat-info">
+        <h3>{{ pending_orders }}</h3>
+        <span>Pending</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon bg-success-soft"><i class="bi bi-check-circle text-success"></i></div>
+      <div class="stat-info">
+        <h3>{{ delivered_orders }}</h3>
+        <span>Delivered</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon bg-danger-soft"><i class="bi bi-x-circle text-danger"></i></div>
+      <div class="stat-info">
+        <h3>{{ cancelled_orders }}</h3>
+        <span>Cancelled</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Cards Row 2 -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="stat-card stat-card-revenue">
+      <div class="stat-icon bg-success-soft"><i class="bi bi-currency-dollar text-success"></i></div>
+      <div class="stat-info">
+        <h3>Rs.{{ revenue_today|floatformat:0|intcomma }}</h3>
+        <span>Today's Revenue</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon bg-info-soft"><i class="bi bi-calendar-month text-info"></i></div>
+      <div class="stat-info">
+        <h3>Rs.{{ revenue_month|floatformat:0|intcomma }}</h3>
+        <span>Monthly Revenue</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon bg-primary-soft"><i class="bi bi-people text-primary"></i></div>
+      <div class="stat-info">
+        <h3>{{ total_customers }}</h3>
+        <span>Customers <small>(+{{ new_customers_today }} today)</small></span>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card {% if low_stock > 0 %}stat-card-alert{% endif %}">
+      <div class="stat-icon bg-warning-soft"><i class="bi bi-exclamation-triangle text-warning"></i></div>
+      <div class="stat-info">
+        <h3>{{ low_stock }}</h3>
+        <span>Low Stock Items</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Revenue Chart + Top Products -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-8">
+    <div class="dashboard-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Revenue (Last 30 Days)</h5>
+      </div>
+      <canvas id="revenueChart" height="80"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="dashboard-card">
+      <h5 class="mb-3">Order Status</h5>
+      <canvas id="orderStatusChart"></canvas>
+      <div class="status-legend mt-3 small">
+        <div class="d-flex justify-content-between"><span><span class="legend-dot bg-warning"></span>Pending</span><strong>{{ pending_orders }}</strong></div>
+        <div class="d-flex justify-content-between"><span><span class="legend-dot bg-info"></span>Confirmed</span><strong>{{ confirmed_orders }}</strong></div>
+        <div class="d-flex justify-content-between"><span><span class="legend-dot bg-primary"></span>Shipped</span><strong>{{ shipped_orders }}</strong></div>
+        <div class="d-flex justify-content-between"><span><span class="legend-dot bg-success"></span>Delivered</span><strong>{{ delivered_orders }}</strong></div>
+        <div class="d-flex justify-content-between"><span><span class="legend-dot bg-danger"></span>Cancelled</span><strong>{{ cancelled_orders }}</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Orders + Top Products -->
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="dashboard-card">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Recent Orders</h5>
+        <a href="{% url 'dashboard:order_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover dashboard-table">
+          <thead>
+            <tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            {% for order in recent_orders %}
+            <tr>
+              <td><code>{{ order.order_id }}</code></td>
+              <td>
+                <div class="fw-medium">{{ order.full_name }}</div>
+                <small class="text-muted">{{ order.phone }}</small>
+              </td>
+              <td>Rs.{{ order.total|intcomma }}</td>
+              <td><span class="badge bg-{{ order.status_badge }}">{{ order.get_status_display }}</span></td>
+              <td><a href="{% url 'dashboard:order_detail' order.order_id %}" class="btn btn-sm btn-outline-secondary">View</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="dashboard-card">
+      <h5 class="mb-3">Top Selling Products</h5>
+      {% for product in top_products %}
+      <div class="top-product-row d-flex align-items-center gap-3 mb-3">
+        {% if product.main_image %}
+        <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}" class="top-product-img rounded-2">
+        {% else %}
+        <div class="top-product-img-placeholder rounded-2"><i class="bi bi-image text-muted"></i></div>
+        {% endif %}
+        <div class="flex-grow-1">
+          <div class="fw-medium small">{{ product.name|truncatechars:35 }}</div>
+          <div class="text-muted x-small">{{ product.total_sold }} sold</div>
+        </div>
+        <div class="fw-bold small text-primary">Rs.{{ product.selling_price|intcomma }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Revenue Chart
+const chartData = {{ chart_data|safe }};
+new Chart(document.getElementById('revenueChart'), {
+  type: 'line',
+  data: {
+    labels: chartData.map(d => d.date),
+    datasets: [{
+      label: 'Revenue (Rs.)',
+      data: chartData.map(d => d.revenue),
+      borderColor: '#6366f1',
+      backgroundColor: 'rgba(99, 102, 241, 0.1)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 2,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { callback: v => 'Rs.' + v.toLocaleString() } }
+    }
+  }
+});
+
+// Order Status Donut
+new Chart(document.getElementById('orderStatusChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'],
+    datasets: [{
+      data: [{{ pending_orders }}, {{ confirmed_orders }}, {{ shipped_orders }}, {{ delivered_orders }}, {{ cancelled_orders }}],
+      backgroundColor: ['#f59e0b','#06b6d4','#6366f1','#22c55e','#ef4444'],
+    }]
+  },
+  options: { responsive: true, plugins: { legend: { display: false } } }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Track Your Order | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <h1 class="h3 mb-4 text-center"><i class="bi bi-geo-alt me-2"></i>Track Your Order</h1>
+
+      <div class="tracking-form-card">
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Order ID</label>
+            <input type="text" name="order_id" class="form-control form-control-lg"
+                   placeholder="e.g. BL-ABC12345" value="{{ request.POST.order_id }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Phone Number</label>
+            <input type="text" name="phone" class="form-control form-control-lg"
+                   placeholder="Phone number used at checkout" value="{{ request.POST.phone }}" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 btn-lg">
+            <i class="bi bi-search me-2"></i>Track Order
+          </button>
+        </form>
+      </div>
+
+      {% if order %}
+      <div class="tracking-result mt-4">
+        <div class="tracking-card">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <h5 class="mb-1">Order #{{ order.order_id }}</h5>
+              <span class="text-muted small">Placed on {{ order.created_at|date:"M d, Y" }}</span>
+            </div>
+            <span class="badge bg-{{ order.status_badge }} fs-6">{{ order.get_status_display }}</span>
+          </div>
+
+          <!-- Progress Tracker -->
+          <div class="order-progress my-4">
+            {% with status=order.status %}
+            <div class="d-flex justify-content-between position-relative">
+              <div class="progress-track"></div>
+              {% for step, label in order.STATUS_CHOICES %}
+              {% if step != 'cancelled' %}
+              <div class="track-step {% if status == step or status == 'delivered' or step == 'pending' %}active{% endif %}">
+                <div class="track-circle">
+                  {% if status == 'cancelled' %}<i class="bi bi-x"></i>
+                  {% elif status == step %}<i class="bi bi-clock"></i>
+                  {% elif forloop.counter < order.STATUS_CHOICES|length %}<i class="bi bi-check"></i>
+                  {% else %}<i class="bi bi-check-circle"></i>{% endif %}
+                </div>
+                <span class="track-label">{{ label }}</span>
+              </div>
+              {% endif %}
+              {% endfor %}
+            </div>
+            {% endwith %}
+          </div>
+
+          <!-- Order Info -->
+          <div class="row g-3 mt-2">
+            <div class="col-6">
+              <div class="tracking-info-box">
+                <label>Delivery To</label>
+                <p>{{ order.full_name }}<br>{{ order.city }}, {{ order.province }}</p>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="tracking-info-box">
+                <label>Payment</label>
+                <p>{{ order.payment_method }}<br>
+                <span class="badge bg-{% if order.payment_status == 'paid' %}success{% else %}warning{% endif %}">
+                  {{ order.get_payment_status_display }}
+                </span></p>
+              </div>
+            </div>
+            {% if order.tracking_number %}
+            <div class="col-12">
+              <div class="tracking-info-box">
+                <label>Courier Tracking</label>
+                <p>{{ order.courier }}: <strong>{{ order.tracking_number }}</strong></p>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Items -->
+          <div class="mt-3">
+            <h6>Items Ordered</h6>
+            {% for item in order.items.all %}
+            <div class="d-flex justify-content-between small py-1 border-bottom">
+              <span>{{ item.product_name }} x{{ item.quantity }}</span>
+              <span>Rs.{{ item.total_price|intcomma }}</span>
+            </div>
+            {% endfor %}
+            <div class="d-flex justify-content-between fw-bold mt-2">
+              <span>Total</span>
+              <span class="text-primary">Rs.{{ order.total|intcomma }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}

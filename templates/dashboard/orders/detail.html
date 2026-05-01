@@ -1,0 +1,160 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block title %}Order {{ order.order_id }}{% endblock %}
+{% block page_title %}Order Detail: {{ order.order_id }}{% endblock %}
+{% block active_orders %}active{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Order Info -->
+  <div class="col-lg-8">
+    <div class="dashboard-card mb-4">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h5 class="mb-1">Order <strong>{{ order.order_id }}</strong></h5>
+          <span class="text-muted small">{{ order.created_at|date:"M d, Y H:i" }}</span>
+        </div>
+        <div>
+          <span class="badge bg-{{ order.status_badge }} fs-6">{{ order.get_status_display }}</span>
+          <span class="badge {% if order.payment_status == 'paid' %}bg-success{% else %}bg-warning{% endif %} fs-6 ms-2">
+            {{ order.get_payment_status_display }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <h6 class="mb-3">Ordered Items</h6>
+      <div class="table-responsive">
+        <table class="table dashboard-table">
+          <thead>
+            <tr><th>Product</th><th>Size/Color</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+          </thead>
+          <tbody>
+            {% for item in order.items.all %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  {% if item.product_image %}
+                  <img src="{{ item.product_image }}" alt="{{ item.product_name }}" class="top-product-img rounded">
+                  {% endif %}
+                  <div>
+                    <div class="fw-medium">{{ item.product_name }}</div>
+                    <small class="text-muted">SKU: {{ item.product_sku }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                {% if item.size %}{{ item.size.name }}{% endif %}
+                {% if item.color %}/ {{ item.color.name }}{% endif %}
+              </td>
+              <td>{{ item.quantity }}</td>
+              <td>Rs.{{ item.unit_price|intcomma }}</td>
+              <td class="fw-bold">Rs.{{ item.total_price|intcomma }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Totals -->
+      <div class="order-totals mt-3">
+        <div class="d-flex justify-content-between"><span>Subtotal</span><span>Rs.{{ order.subtotal|intcomma }}</span></div>
+        {% if order.discount_amount > 0 %}
+        <div class="d-flex justify-content-between text-success"><span>Discount</span><span>- Rs.{{ order.discount_amount|intcomma }}</span></div>
+        {% endif %}
+        <div class="d-flex justify-content-between"><span>Shipping</span><span>{% if order.shipping_cost == 0 %}FREE{% else %}Rs.{{ order.shipping_cost|intcomma }}{% endif %}</span></div>
+        <hr>
+        <div class="d-flex justify-content-between fw-bold fs-5"><span>Total</span><span class="text-primary">Rs.{{ order.total|intcomma }}</span></div>
+      </div>
+    </div>
+
+    <!-- Status History -->
+    <div class="dashboard-card">
+      <h6 class="mb-3">Status History</h6>
+      {% for h in history %}
+      <div class="history-item d-flex gap-3 mb-3">
+        <div class="history-dot"></div>
+        <div>
+          <div class="fw-medium">{{ h.old_status|default:'New' }} → {{ h.new_status }}</div>
+          {% if h.note %}<p class="text-muted small mb-0">{{ h.note }}</p>{% endif %}
+          <small class="text-muted">{{ h.created_at|date:"M d, Y H:i" }} {% if h.changed_by %}by {{ h.changed_by.get_full_name|default:h.changed_by.email }}{% endif %}</small>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Sidebar: Customer + Actions -->
+  <div class="col-lg-4">
+    <!-- Customer Info -->
+    <div class="dashboard-card mb-4">
+      <h6 class="mb-3">Customer Information</h6>
+      <div class="info-row"><label>Name</label><span>{{ order.full_name }}</span></div>
+      <div class="info-row"><label>Phone</label><a href="tel:{{ order.phone }}">{{ order.phone }}</a></div>
+      {% if order.alt_phone %}<div class="info-row"><label>Alt. Phone</label><span>{{ order.alt_phone }}</span></div>{% endif %}
+      {% if order.email %}<div class="info-row"><label>Email</label><a href="mailto:{{ order.email }}">{{ order.email }}</a></div>{% endif %}
+      <div class="info-row"><label>Address</label><span>{{ order.address }}</span></div>
+      <div class="info-row"><label>City</label><span>{{ order.city }}, {{ order.province }} {{ order.postal_code }}</span></div>
+      {% if order.notes %}<div class="info-row"><label>Notes</label><span>{{ order.notes }}</span></div>{% endif %}
+    </div>
+
+    <!-- Update Status -->
+    <div class="dashboard-card mb-4">
+      <h6 class="mb-3">Update Order Status</h6>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_status">
+        <div class="mb-3">
+          <select name="status" class="form-select">
+            {% for val, label in status_choices %}
+            <option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3" id="trackingFields" style="{% if order.status != 'shipped' %}display:none;{% endif %}">
+          <input type="text" name="courier" class="form-control mb-2" placeholder="Courier Name" value="{{ order.courier }}">
+          <input type="text" name="tracking_number" class="form-control" placeholder="Tracking Number" value="{{ order.tracking_number }}">
+        </div>
+        <div class="mb-3">
+          <textarea name="note" class="form-control" rows="2" placeholder="Add a note (optional)"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Update Status</button>
+      </form>
+    </div>
+
+    <!-- Mark Paid -->
+    {% if order.payment_status == 'unpaid' %}
+    <div class="dashboard-card mb-4">
+      <h6 class="mb-3">Payment</h6>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="mark_paid">
+        <button type="submit" class="btn btn-success w-100">
+          <i class="bi bi-check-circle me-2"></i>Mark as Paid
+        </button>
+      </form>
+    </div>
+    {% endif %}
+
+    <!-- WhatsApp -->
+    {% if site_settings.whatsapp %}
+    <div class="dashboard-card">
+      <h6 class="mb-3">Quick Actions</h6>
+      <a href="https://wa.me/{{ order.phone }}?text=Dear {{ order.full_name }}, your order {{ order.order_id }} status is now: {{ order.get_status_display }}. Thank you for shopping with {{ site_settings.site_name }}!"
+         target="_blank" class="btn btn-success w-100 mb-2">
+        <i class="bi bi-whatsapp me-2"></i>WhatsApp Customer
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelector('[name=status]')?.addEventListener('change', function() {
+  document.getElementById('trackingFields').style.display = this.value === 'shipped' ? 'block' : 'none';
+});
+</script>
+{% endblock %}
