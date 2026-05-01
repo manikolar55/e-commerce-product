@@ -174,3 +174,5 @@ LOGOUT_REDIRECT_URL = '/'
 
 # Messages storage
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
