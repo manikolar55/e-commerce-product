@@ -16,7 +16,9 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY', default='django-insecure-change-this-in-production-xyz-abc-123')
 DEBUG = False
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '*', 'flowsbin.com','www.flowsbin.com','72.60.79.100','2a02:4780:59:1c07::1'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '*',
+                                                   'flowsbin.com','www.flowsbin.com',
+                                                   '72.60.79.100','2a02:4780:59:1c07::1','ns1.dns-parking.com', 'ns2.dns-parking.com'])
 
 # Application definition
 INSTALLED_APPS = [
