@@ -15,7 +15,7 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Custom Dashboard CSS -->
-  <link rel="stylesheet" href="/static/css/dashboard.css?v=3">
+  <link rel="stylesheet" href="/static/css/dashboard.css?v=4">
   {% block extra_css %}{% endblock %}
 </head>
 <body class="dashboard-body">
@@ -155,7 +155,7 @@
   var closeBtn  = document.getElementById('sidebarClose');
 
   function isMobile() {
-    return window.innerWidth <= 991;
+    return getComputedStyle(document.documentElement).getPropertyValue('--is-mobile').trim() === '1';
   }
 
   function openMobileSidebar() {
