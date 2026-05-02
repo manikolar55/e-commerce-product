@@ -285,25 +285,21 @@ body.dashboard-body { font-family: 'Inter', sans-serif; background: var(--bg); c
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 991px) {
-  /* Sidebar: sits off-screen to the left, slides in on open */
   .dashboard-sidebar {
-    left: calc(-1 * var(--sidebar-width));
+    transform: translateX(-100%);
     width: var(--sidebar-width) !important;
     z-index: 1050;
-    transition: left 0.28s ease;
+    transition: transform 0.28s ease;
     box-shadow: none;
   }
-  /* Remove transform-based hiding - use left instead (avoids iOS overflow bug) */
   .dashboard-sidebar.mobile-open {
-    left: 0 !important;
+    transform: translateX(0) !important;
     box-shadow: 4px 0 32px rgba(0, 0, 0, 0.35) !important;
   }
   .dashboard-main {
     margin-left: 0 !important;
   }
-  /* Show close button inside sidebar on mobile */
   .sidebar-close-btn { display: flex; }
-  /* Make hamburger more obvious on mobile */
   .sidebar-toggle {
     background: var(--primary) !important;
     color: white !important;
