@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Admin Dashboard{% endblock %} | {{ site_settings.site_name }}</title>
   <meta name="robots" content="noindex, nofollow">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/media/logo/ChatGPT Image May 3, 2026, 12_20_37 AM.png">
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -20,9 +22,13 @@
 
 <!-- Sidebar -->
 <nav class="dashboard-sidebar" id="sidebar">
+  <!-- Close button (mobile only) -->
+  <button class="sidebar-close-btn" id="sidebarClose" aria-label="Close menu">
+    <i class="bi bi-x-lg"></i>
+  </button>
+
   <div class="sidebar-brand">
-    <i class="bi bi-shop-window me-2"></i>
-    <span>BabyLady Admin</span>
+    <img src="/media/logo/ChatGPT Image May 3, 2026, 12_20_37 AM.png" alt="{{ site_settings.site_name }}" height="36" style="max-width:140px;object-fit:contain;">
   </div>
 
   <ul class="sidebar-nav">
@@ -141,41 +147,62 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
-const sidebar = document.getElementById('sidebar');
-const dashboardMain = document.getElementById('dashboardMain');
-const overlay = document.getElementById('sidebarOverlay');
+(function () {
+  var sidebar     = document.getElementById('sidebar');
+  var main        = document.getElementById('dashboardMain');
+  var overlay     = document.getElementById('sidebarOverlay');
+  var toggleBtn   = document.getElementById('sidebarToggle');
+  var closeBtn    = document.getElementById('sidebarClose');
+  var mq          = window.matchMedia('(max-width: 991px)');
 
-function isMobile() { return window.innerWidth <= 991; }
-
-document.getElementById('sidebarToggle').addEventListener('click', function() {
-  if (isMobile()) {
-    sidebar.classList.toggle('mobile-open');
-    overlay.classList.toggle('active');
-  } else {
-    sidebar.classList.toggle('collapsed');
-    dashboardMain.classList.toggle('expanded');
+  function openMobileSidebar() {
+    sidebar.classList.add('mobile-open');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden'; // prevent background scroll
   }
-});
 
-overlay.addEventListener('click', function() {
-  sidebar.classList.remove('mobile-open');
-  overlay.classList.remove('active');
-});
+  function closeMobileSidebar() {
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
 
-// Close sidebar on mobile when a nav link is clicked
-sidebar.querySelectorAll('.sidebar-link').forEach(function(link) {
-  link.addEventListener('click', function() {
-    if (isMobile()) {
-      sidebar.classList.remove('mobile-open');
-      overlay.classList.remove('active');
+  // Hamburger toggle
+  toggleBtn.addEventListener('click', function () {
+    if (mq.matches) {
+      // Mobile: slide sidebar in/out
+      if (sidebar.classList.contains('mobile-open')) {
+        closeMobileSidebar();
+      } else {
+        openMobileSidebar();
+      }
+    } else {
+      // Desktop: collapse to icon-only
+      sidebar.classList.toggle('collapsed');
+      main.classList.toggle('expanded');
     }
   });
-});
 
-// Pending orders count
-fetch('/dashboard/orders/?status=pending')
-  .then(() => {})
-  .catch(() => {});
+  // Close via X button inside sidebar
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeMobileSidebar);
+  }
+
+  // Close when tapping the dark overlay
+  overlay.addEventListener('click', closeMobileSidebar);
+
+  // Close when a nav link is tapped on mobile (navigates away)
+  sidebar.querySelectorAll('.sidebar-link').forEach(function (link) {
+    link.addEventListener('click', function () {
+      if (mq.matches) { closeMobileSidebar(); }
+    });
+  });
+
+  // If screen resizes from mobile to desktop, clean up mobile state
+  mq.addEventListener('change', function (e) {
+    if (!e.matches) { closeMobileSidebar(); }
+  });
+}());
 </script>
 
 {% block extra_js %}{% endblock %}

@@ -10,7 +10,8 @@
       "Bash(kill %1)",
       "Bash(Get-ChildItem -Recurse -Directory)",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(Sort-Object)"
+      "Bash(Sort-Object)",
+      "Bash(dir C:\\\\Users\\\\Pcomputer\\\\Downloads\\\\e-commerce-20260501T080903Z-3-001\\\\e-commerce\\\\media *)"
     ]
   }
 }

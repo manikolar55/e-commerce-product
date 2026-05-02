@@ -21,7 +21,9 @@
 
   <!-- Favicon -->
   {% if site_settings.favicon %}
-  <link rel="icon" type="image/x-icon" href="{{ site_settings.favicon.url }}">
+  <link rel="icon" type="image/png" href="{{ site_settings.favicon.url }}">
+  {% else %}
+  <link rel="icon" type="image/png" href="/media/logo/ChatGPT Image May 3, 2026, 12_20_37 AM.png">
   {% endif %}
 
   <!-- Google Fonts -->
@@ -93,7 +95,7 @@
       {% if site_settings.logo %}
         <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" height="45">
       {% else %}
-        <span class="brand-name">{{ site_settings.site_name }}</span>
+        <img src="/media/logo/ChatGPT Image May 3, 2026, 12_20_37 AM.png" alt="{{ site_settings.site_name }}" height="45">
       {% endif %}
     </a>
 
@@ -262,7 +264,13 @@
       <div class="row g-4">
         <!-- Brand -->
         <div class="col-lg-3 col-md-6">
-          <h5 class="footer-brand mb-3">{{ site_settings.site_name }}</h5>
+          <div class="footer-brand mb-3">
+            {% if site_settings.logo %}
+              <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" height="45">
+            {% else %}
+              <img src="/media/logo/ChatGPT Image May 3, 2026, 12_20_37 AM.png" alt="{{ site_settings.site_name }}" height="45">
+            {% endif %}
+          </div>
           <p class="text-muted small">Premium baby products and ladies fashion. Quality products delivered to your doorstep.</p>
           <div class="social-links mt-3">
             {% if site_settings.facebook %}<a href="{{ site_settings.facebook }}" target="_blank"><i class="bi bi-facebook"></i></a>{% endif %}
