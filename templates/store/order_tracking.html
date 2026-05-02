@@ -42,7 +42,7 @@
           <!-- Progress Tracker -->
           <div class="order-progress my-4">
             {% with status=order.status %}
-            <div class="d-flex justify-content-between position-relative">
+            <div class="d-flex justify-content-between position-relative" style="min-width: 0">
               <div class="progress-track"></div>
               {% for step, label in order.STATUS_CHOICES %}
               {% if step != 'cancelled' %}

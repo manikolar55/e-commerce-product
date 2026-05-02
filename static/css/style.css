@@ -1065,3 +1065,102 @@ a:hover { color: var(--primary-dark); }
 
 /* ===== MIN-WIDTH FIX ===== */
 .min-w-0 { min-width: 0; }
+
+/* ===== MOBILE FILTER SIDEBAR ===== */
+/* Always show filter panel on desktop regardless of collapse state */
+@media (min-width: 992px) {
+  #mobileFilters { display: block !important; }
+}
+@media (max-width: 991px) {
+  .filter-toggle-btn i.bi-chevron-down { transition: transform 0.25s ease; }
+  .filter-toggle-btn[aria-expanded="true"] i.bi-chevron-down { transform: rotate(180deg); }
+}
+
+/* ===== ORDER TRACKING PROGRESS - MOBILE SCROLL ===== */
+@media (max-width: 576px) {
+  .order-progress { overflow-x: auto; padding-bottom: 8px; }
+  .order-progress .d-flex.justify-content-between.position-relative { min-width: 380px; }
+  .track-label { font-size: 0.62rem; }
+  .track-circle { width: 30px; height: 30px; font-size: 0.75rem; }
+}
+
+/* ===== CATEGORY CARDS MOBILE ===== */
+@media (max-width: 575px) {
+  .category-card-inner { padding: 24px 16px; }
+  .category-card { min-height: 160px; }
+  .category-icon { font-size: 2rem; margin-bottom: 8px; }
+  .category-card h3 { font-size: 1.2rem; margin-bottom: 4px; }
+  .category-card p { font-size: 0.8rem; margin-bottom: 10px; }
+}
+
+/* ===== PRODUCT DETAIL MOBILE ===== */
+@media (max-width: 767px) {
+  .product-detail-title { font-size: 1.25rem; }
+  .detail-price-current { font-size: 1.5rem; }
+  .detail-price-original { font-size: 1rem; }
+  .thumbnail-img { width: 56px; height: 56px; }
+  .btn-add-cart-detail, .btn-buy-now { padding: 10px 14px; font-size: 0.875rem; }
+  .product-tabs .tab-content { padding: 16px !important; }
+  .cod-note { font-size: 0.8rem; }
+}
+
+/* ===== BLOG MOBILE ===== */
+@media (max-width: 767px) {
+  .blog-img { height: 160px; }
+}
+
+/* ===== PROFILE MOBILE ===== */
+@media (max-width: 767px) {
+  .profile-sidebar { margin-bottom: 16px; padding: 16px; }
+  .profile-nav {
+    flex-direction: row !important;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 4px;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .profile-nav .nav-link { white-space: nowrap; font-size: 0.8rem; padding: 6px 10px; }
+  .profile-stat-card { padding: 14px 8px; }
+  .profile-stat-card .stat-value { font-size: 1.1rem; }
+  .profile-stat-card .stat-label { font-size: 0.72rem; }
+}
+
+/* ===== AUTH CARDS MOBILE ===== */
+@media (max-width: 575px) {
+  .auth-card { padding: 24px 16px; margin: 0 4px; }
+}
+
+/* ===== GENERAL SMALL SCREEN FIXES ===== */
+@media (max-width: 575px) {
+  /* Reduce section vertical spacing */
+  .py-5 { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; }
+  /* Reduce section title sizes */
+  .section-title { font-size: 1.4rem; }
+  /* Breadcrumb smaller */
+  .breadcrumb { font-size: 0.8rem; }
+  /* Promo banner text */
+  .promo-title { font-size: 1.1rem; }
+  /* Footer newsletter input group full width */
+  .footer .input-group { flex-direction: column; gap: 8px; }
+  .footer .input-group .form-control { border-radius: 8px !important; }
+  .footer .input-group .btn { border-radius: 8px !important; width: 100%; }
+  /* Table overflow fix */
+  .table-responsive { -webkit-overflow-scrolling: touch; }
+}
+
+/* ===== DASHBOARD MOBILE IMPROVEMENTS ===== */
+@media (max-width: 991px) {
+  .dashboard-card { padding: 16px !important; }
+  .stat-info h3 { font-size: 1.3rem; }
+  .dashboard-table { font-size: 0.8rem; }
+  /* All dashboard tables scrollable */
+  .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+@media (max-width: 576px) {
+  .dashboard-content { padding: 12px !important; }
+  .dashboard-topbar { padding: 0 12px; }
+  .topbar-title { font-size: 0.9rem; }
+  /* Hide pending orders button text on very small screens */
+  .dashboard-topbar .btn-warning span { display: none; }
+}

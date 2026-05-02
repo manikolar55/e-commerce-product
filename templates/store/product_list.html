@@ -21,6 +21,13 @@
   <div class="row g-4">
     <!-- Sidebar Filters -->
     <div class="col-lg-3">
+      <!-- Mobile toggle -->
+      <button class="filter-toggle-btn btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center d-lg-none mb-2"
+              type="button" data-bs-toggle="collapse" data-bs-target="#mobileFilters" aria-expanded="false">
+        <span><i class="bi bi-funnel me-2"></i>Filters &amp; Sort</span>
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <div id="mobileFilters" class="collapse">
       <div class="filter-sidebar">
         <div class="filter-header d-flex justify-content-between align-items-center mb-3">
           <h5 class="mb-0">Filters</h5>
@@ -74,6 +81,7 @@
           <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
         </form>
       </div>
+      </div><!-- end #mobileFilters -->
     </div>
 
     <!-- Product Grid -->

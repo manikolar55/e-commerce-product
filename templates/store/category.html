@@ -24,6 +24,13 @@
   <div class="row g-4">
     <!-- Subcategory Filters -->
     <div class="col-lg-3">
+      <!-- Mobile toggle -->
+      <button class="filter-toggle-btn btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center d-lg-none mb-2"
+              type="button" data-bs-toggle="collapse" data-bs-target="#mobileFilters" aria-expanded="false">
+        <span><i class="bi bi-funnel me-2"></i>Filter &amp; Sort</span>
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      <div id="mobileFilters" class="collapse">
       <div class="filter-sidebar">
         <h6 class="filter-title">Subcategories</h6>
         <a href="{{ category.get_absolute_url }}" class="d-block py-1 text-decoration-none {% if not subcategory %}fw-bold text-primary{% else %}text-muted{% endif %}">
@@ -46,6 +53,7 @@
           </select>
         </form>
       </div>
+      </div><!-- end #mobileFilters -->
     </div>
 
     <!-- Products -->
