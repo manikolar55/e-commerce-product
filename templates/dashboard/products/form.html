@@ -34,7 +34,13 @@
             </div>
             <div class="col-12">
               <label class="form-label">Full Description *</label>
+              <div class="d-flex gap-1 mb-1">
+                <button type="button" id="btnBullet" class="btn btn-sm btn-outline-secondary" title="Insert bullet point">
+                  <i class="bi bi-list-ul"></i> Bullet Point
+                </button>
+              </div>
               {{ form.description }}
+              <small class="text-muted">Tip: click Bullet Point or press Enter after a bullet to auto-continue.</small>
             </div>
           </div>
         </div>
@@ -171,7 +177,7 @@
 
 {% block extra_js %}
 <script>
-// Image upload preview
+// ── Image upload with client-side compression ──────────────────────────────
 const uploadZone = document.getElementById('uploadZone');
 const input = document.getElementById('imagesInput');
 const preview = document.getElementById('imagePreview');
@@ -182,32 +188,106 @@ uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag
 uploadZone.addEventListener('drop', e => {
   e.preventDefault();
   uploadZone.classList.remove('dragover');
-  input.files = e.dataTransfer.files;
-  showPreview(input.files);
+  processFiles(e.dataTransfer.files);
 });
-input.addEventListener('change', () => showPreview(input.files));
+input.addEventListener('change', () => processFiles(input.files));
 
-function showPreview(files) {
-  preview.innerHTML = '';
-  Array.from(files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const div = document.createElement('div');
-      div.className = 'position-relative';
-      div.innerHTML = `<img src="${e.target.result}" class="preview-img rounded-2" style="width:80px;height:80px;object-fit:cover;">`;
-      preview.appendChild(div);
+function compressImage(file) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const canvas = document.createElement('canvas');
+      let { width, height } = img;
+      const maxDim = 1920;
+      if (width > maxDim || height > maxDim) {
+        if (width >= height) { height = Math.round(height * maxDim / width); width = maxDim; }
+        else { width = Math.round(width * maxDim / height); height = maxDim; }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob(blob => {
+        const name = file.name.replace(/\.[^.]+$/, '.jpg');
+        resolve(new File([blob], name, { type: 'image/jpeg' }));
+      }, 'image/jpeg', 0.85);
     };
-    reader.readAsDataURL(file);
+    img.src = url;
   });
 }
 
-// Delete existing images
+async function processFiles(files) {
+  preview.innerHTML = '<small class="text-muted ms-1">Compressing images…</small>';
+  const dt = new DataTransfer();
+  const compressed = [];
+  for (const file of Array.from(files)) {
+    const c = await compressImage(file);
+    dt.items.add(c);
+    compressed.push(c);
+  }
+  input.files = dt.files;
+  preview.innerHTML = '';
+  compressed.forEach(c => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.className = 'position-relative text-center';
+      div.innerHTML = `
+        <img src="${e.target.result}" class="preview-img rounded-2" style="width:80px;height:80px;object-fit:cover;">
+        <small class="d-block text-muted" style="font-size:10px;">${Math.round(c.size/1024)} KB</small>`;
+      preview.appendChild(div);
+    };
+    reader.readAsDataURL(c);
+  });
+}
+
+// ── Bullet point toolbar ───────────────────────────────────────────────────
+document.getElementById('btnBullet').addEventListener('click', function () {
+  const ta = document.getElementById('id_description');
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  const val = ta.value;
+  const bullet = '• ';
+  if (start !== end) {
+    // Bullet every selected line
+    const before = val.substring(0, start);
+    const bulleted = val.substring(start, end).split('\n').map(l => bullet + l).join('\n');
+    const after = val.substring(end);
+    ta.value = before + bulleted + after;
+    ta.selectionStart = start;
+    ta.selectionEnd = start + bulleted.length;
+  } else {
+    // Insert bullet at start of current line
+    const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+    ta.value = val.substring(0, lineStart) + bullet + val.substring(lineStart);
+    ta.selectionStart = ta.selectionEnd = lineStart + bullet.length;
+  }
+  ta.focus();
+});
+
+// Auto-continue bullet on Enter
+document.getElementById('id_description').addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter') return;
+  const start = this.selectionStart;
+  const val = this.value;
+  const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+  const currentLine = val.substring(lineStart, start);
+  if (currentLine.startsWith('• ')) {
+    e.preventDefault();
+    const insert = '\n• ';
+    this.value = val.substring(0, start) + insert + val.substring(this.selectionEnd);
+    this.selectionStart = this.selectionEnd = start + insert.length;
+  }
+});
+
+// ── Delete existing images ─────────────────────────────────────────────────
 document.querySelectorAll('.delete-img-btn').forEach(btn => {
-  btn.addEventListener('click', function() {
+  btn.addEventListener('click', function () {
     if (!confirm('Delete this image?')) return;
     fetch(`/dashboard/products/image/${this.dataset.imgId}/delete/`, {
       method: 'POST',
-      headers: {'X-CSRFToken': getCookie('csrftoken')}
+      headers: { 'X-CSRFToken': getCookie('csrftoken') }
     }).then(r => r.json()).then(data => {
       if (data.success) this.closest('.current-img-item').remove();
     });

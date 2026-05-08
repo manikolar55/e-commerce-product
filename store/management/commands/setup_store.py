@@ -63,8 +63,8 @@ class Command(BaseCommand):
         # Sizes
         sizes_data = [
             ('XS', 0), ('S', 1), ('M', 2), ('L', 3), ('XL', 4), ('XXL', 5),
-            ('0-3M', 6), ('3-6M', 7), ('6-12M', 8), ('1-2Y', 9), ('2-3Y', 10),
-            ('3-4Y', 11), ('4-5Y', 12), ('Free Size', 13),
+            ('0-3M', 6), ('3-6M', 7), ('6-12M', 8), ('12-18M', 9), ('1-2Y', 10),
+            ('2-3Y', 11), ('3-4Y', 12), ('4-5Y', 13), ('Free Size', 14),
         ]
         for name, order in sizes_data:
             Size.objects.get_or_create(name=name, defaults={'order': order})
