@@ -414,8 +414,11 @@ a:hover { color: var(--primary-dark); }
 .main-product-img {
   width: 100%;
   height: 480px;
-  object-fit: cover;
+  object-fit: contain;
+  background: #f8f8f8;
   border-radius: var(--radius);
+  cursor: zoom-in;
+  padding: 8px;
 }
 .main-image-wrapper { position: relative; }
 .gallery-badge {
@@ -690,7 +693,7 @@ a:hover { color: var(--primary-dark); }
   .hero-title { font-size: 1.6rem; }
   .mega-menu { width: 100% !important; }
   .search-form { display: none !important; }
-  .main-product-img { height: 300px; }
+  .main-product-img { height: 300px; object-fit: contain; }
   .promo-card { padding: 24px; }
   .hero-btn { padding: 10px 20px; font-size: 0.9rem; }
   .product-img-link { height: 160px; }

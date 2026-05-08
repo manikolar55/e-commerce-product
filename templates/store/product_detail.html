@@ -34,7 +34,8 @@
         <div class="main-image-wrapper mb-3">
           {% if product.main_image %}
           <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}"
-               class="img-fluid rounded-3 main-product-img" id="mainProductImg">
+               class="img-fluid rounded-3 main-product-img" id="mainProductImg"
+               onclick="openLightbox(this.src)">
           {% else %}
           <div class="product-img-placeholder-lg rounded-3">
             <i class="bi bi-image text-muted" style="font-size: 5rem;"></i>
@@ -46,15 +47,24 @@
         </div>
 
         <!-- Thumbnails -->
-        {% if images.count > 1 %}
+        {% if images %}
         <div class="thumbnail-strip d-flex gap-2 flex-wrap">
           {% for img in images %}
           <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}"
                class="thumbnail-img rounded {% if img.is_primary %}active{% endif %}"
-               onclick="document.getElementById('mainProductImg').src='{{ img.image.url }}'; this.closest('.thumbnail-strip').querySelectorAll('.thumbnail-img').forEach(el=>el.classList.remove('active')); this.classList.add('active');">
+               onclick="switchImage(this, '{{ img.image.url }}')">
           {% endfor %}
         </div>
         {% endif %}
+
+        <!-- Lightbox Modal -->
+        <div id="lightboxModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:9999;cursor:zoom-out;align-items:center;justify-content:center;"
+             onclick="closeLightbox()">
+          <button onclick="closeLightbox()" style="position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:2rem;line-height:1;cursor:pointer;">&times;</button>
+          <img id="lightboxImg" src="" alt="{{ product.name }}"
+               style="max-width:92vw;max-height:90vh;object-fit:contain;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.5);"
+               onclick="event.stopPropagation()">
+        </div>
       </div>
     </div>
 
@@ -323,15 +333,21 @@ document.querySelectorAll('.color-btn').forEach(btn => {
 });
 
 // Quantity
+const qtyInput = document.getElementById('quantity');
+const stockMax = qtyInput ? parseInt(qtyInput.max) : 1;
+
 document.getElementById('qtyMinus')?.addEventListener('click', () => {
-  const q = document.getElementById('quantity');
-  if (parseInt(q.value) > 1) q.value = parseInt(q.value) - 1;
+  if (parseInt(qtyInput.value) > 1) qtyInput.value = parseInt(qtyInput.value) - 1;
 });
 document.getElementById('qtyPlus')?.addEventListener('click', () => {
-  const q = document.getElementById('quantity');
-  const max = parseInt(q.max);
-  if (parseInt(q.value) < max) q.value = parseInt(q.value) + 1;
-  else showToast(`Only ${max} item${max === 1 ? '' : 's'} available in stock.`, 'warning');
+  if (parseInt(qtyInput.value) < stockMax) qtyInput.value = parseInt(qtyInput.value) + 1;
+  else showToast(`Only ${stockMax} item${stockMax === 1 ? '' : 's'} available in stock.`, 'warning');
+});
+qtyInput?.addEventListener('input', () => {
+  let val = parseInt(qtyInput.value) || 1;
+  if (val < 1) val = 1;
+  if (val > stockMax) { val = stockMax; showToast(`Only ${stockMax} item${stockMax === 1 ? '' : 's'} available in stock.`, 'warning'); }
+  qtyInput.value = val;
 });
 
 // Add to Cart
@@ -362,5 +378,25 @@ document.getElementById('addToCartBtn')?.addEventListener('click', function() {
 document.querySelector('.wishlist-btn[data-product-id]')?.addEventListener('click', function() {
   toggleWishlist(this.dataset.productId, this);
 });
+
+// Thumbnail switch
+function switchImage(el, src) {
+  document.getElementById('mainProductImg').src = src;
+  el.closest('.thumbnail-strip').querySelectorAll('.thumbnail-img').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Lightbox
+function openLightbox(src) {
+  const modal = document.getElementById('lightboxModal');
+  document.getElementById('lightboxImg').src = src;
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightboxModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 </script>
 {% endblock %}
