@@ -97,8 +97,17 @@ def add_to_cart(request):
         defaults={'quantity': quantity}
     )
     if not created:
-        item.quantity += quantity
+        new_qty = item.quantity + quantity
+        if new_qty > product.stock:
+            available = product.stock - item.quantity
+            if available <= 0:
+                return JsonResponse({'success': False, 'error': f'You already have all available stock ({product.stock}) in your cart.'})
+            return JsonResponse({'success': False, 'error': f'Only {available} more item(s) can be added. You already have {item.quantity} in your cart.'})
+        item.quantity = new_qty
         item.save()
+    elif quantity > product.stock:
+        item.delete()
+        return JsonResponse({'success': False, 'error': f'Only {product.stock} item(s) available in stock.'})
 
     return JsonResponse({
         'success': True,

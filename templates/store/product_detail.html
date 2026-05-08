@@ -150,6 +150,11 @@
             <input type="number" id="quantity" value="1" min="1" max="{{ product.stock }}" class="qty-input">
             <button type="button" class="qty-btn" id="qtyPlus">+</button>
           </div>
+          {% if product.stock <= 10 %}
+          <small class="text-danger mt-1 d-block">Only {{ product.stock }} left in stock!</small>
+          {% else %}
+          <small class="text-muted mt-1 d-block">{{ product.stock }} in stock</small>
+          {% endif %}
         </div>
 
         <!-- Buttons -->
@@ -324,7 +329,9 @@ document.getElementById('qtyMinus')?.addEventListener('click', () => {
 });
 document.getElementById('qtyPlus')?.addEventListener('click', () => {
   const q = document.getElementById('quantity');
-  q.value = parseInt(q.value) + 1;
+  const max = parseInt(q.max);
+  if (parseInt(q.value) < max) q.value = parseInt(q.value) + 1;
+  else showToast(`Only ${max} item${max === 1 ? '' : 's'} available in stock.`, 'warning');
 });
 
 // Add to Cart
@@ -345,6 +352,8 @@ document.getElementById('addToCartBtn')?.addEventListener('click', function() {
     if (data.success) {
       showToast(data.message, 'success');
       document.querySelectorAll('.cart-badge').forEach(el => el.textContent = data.cart_count);
+    } else {
+      showToast(data.error, 'warning');
     }
   });
 });
